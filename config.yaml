@@ -1,0 +1,21 @@
+tls:
+  enabled: false
+  crt: server.crt
+  key: server.key
+
+basicAuth:
+  enabled: false
+  username: admin
+  password: admin
+
+bearerAuth:
+  enabled: false
+  signingKey: my_secret_key
+
+scripts:
+  - name: librespeed
+    script: /usr/local/bin/librespeed-exporter.sh
+    timeout:
+      max_timeout: 120
+      enforced: false
+
