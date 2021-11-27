@@ -1,13 +1,22 @@
 #!/bin/bash
 
-echo "# SERVER_IDS $SERVER_IDS"
+BACKENDS_JSON_FILE=/librespeed-backends.json
 
 if [ -z "$SERVER_IDS" ]
 then
 	echo "# No server's specified"
 
 	# Get the result
-	JSON=$(librespeed-cli --local-json librespeed-backends.json --json)
+	if [ -f "$BACKENDS_JSON_FILE" ]
+	then
+		echo "# Using custom backends file"
+		JSON=$(librespeed-cli --local-json $BACKENDS_JSON_FILE --json)
+	else
+		echo "# Not using custom backends file"
+		JSON=$(librespeed-cli --json)
+	fi
+
+	echo "# JSON: $JSON"
 
 	# Parse out the values
 	SERVER=$(echo $JSON | jq ".server.name")
@@ -28,14 +37,25 @@ then
 	echo librespeed_upload{server=$SERVER} $UPLOAD
 	echo librespeed_download{server=$SERVER} $DOWNLOAD
 else
-	IFS=',' read -ra SERVER_ID_ARRAY <<< "$SERVER_IDS"
+	echo "# Server's specified: $SERVER_IDS"
+
+	IFS='|' read -ra SERVER_ID_ARRAY <<< "$SERVER_IDS"
 
 	for SERVER_ID in "${SERVER_ID_ARRAY[@]}"
 	do
 	        echo "# SERVER_ID $SERVER_ID"
 
 		# Get the result
-		JSON=$(librespeed-cli --local-json librespeed-backends.json --server $SERVER_ID --json)
+		if [ -f "$BACKENDS_JSON_FILE" ]
+		then
+			echo "# Using custom backends file"
+			JSON=$(librespeed-cli --local-json $BACKENDS_JSON_FILE --server $SERVER_ID --json)
+		else
+			echo "# Not using custom backends file"
+			JSON=$(librespeed-cli --json)
+		fi
+
+		echo "# JSON: $JSON"
 
 		# Parse out the values
 		SERVER=$(echo $JSON | jq ".server.name")
