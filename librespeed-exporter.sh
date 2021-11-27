@@ -2,6 +2,19 @@
 
 BACKENDS_JSON_FILE=/librespeed-backends.json
 
+if [ "$PERFORM_DOWNLOAD" == "FALSE" ]
+then
+	DOWNLOAD_SWITCH=--no-download
+fi
+
+if [ "$PERFORM_UPLOAD" == "FALSE" ]
+then
+	UPLOAD_SWITCH=--no-upload
+fi
+
+echo $DOWNLOAD_SWITCH
+echo $UPLOAD_SWITCH
+
 if [ -z "$SERVER_IDS" ]
 then
 	echo "# No server's specified"
@@ -10,10 +23,10 @@ then
 	if [ -f "$BACKENDS_JSON_FILE" ]
 	then
 		echo "# Using custom backends file"
-		JSON=$(librespeed-cli --local-json $BACKENDS_JSON_FILE --json)
+		JSON=$(librespeed-cli $DOWNLOAD_SWITCH $UPLOAD_SWITCH --local-json $BACKENDS_JSON_FILE --json)
 	else
 		echo "# Not using custom backends file"
-		JSON=$(librespeed-cli --json)
+		JSON=$(librespeed-cli $DOWNLOAD_SWITCH $UPLOAD_SWITCH --json)
 	fi
 
 	echo "# JSON: $JSON"
@@ -34,8 +47,18 @@ then
 	echo librespeed_bytes_received{server=$SERVER} $BYTES_RECEIVED
 	echo librespeed_ping{server=$SERVER} $PING
 	echo librespeed_jitter{server=$SERVER} $JITTER
-	echo librespeed_upload{server=$SERVER} $UPLOAD
-	echo librespeed_download{server=$SERVER} $DOWNLOAD
+
+	if [ "$PERFORM_DOWNLOAD" != "FALSE" ]
+	then
+		echo "# Emitting download metric"
+		echo librespeed_download{server=$SERVER} $DOWNLOAD
+	fi
+
+	if [ "$PERFORM_UPLOAD" != "FALSE" ]
+	then
+		echo "# Emitting upload metric"
+		echo librespeed_upload{server=$SERVER} $UPLOAD
+	fi
 else
 	echo "# Server's specified: $SERVER_IDS"
 
@@ -49,10 +72,10 @@ else
 		if [ -f "$BACKENDS_JSON_FILE" ]
 		then
 			echo "# Using custom backends file"
-			JSON=$(librespeed-cli --local-json $BACKENDS_JSON_FILE --server $SERVER_ID --json)
+			JSON=$(librespeed-cli $DOWNLOAD_SWITCH $UPLOAD_SWITCH --local-json $BACKENDS_JSON_FILE --server $SERVER_ID --json)
 		else
 			echo "# Not using custom backends file"
-			JSON=$(librespeed-cli --json)
+			JSON=$(librespeed-cli $DOWNLOAD_SWITCH $UPLOAD_SWITCH --json)
 		fi
 
 		echo "# JSON: $JSON"
@@ -63,8 +86,8 @@ else
 		BYTES_RECEIVED=$(echo $JSON | jq ".bytes_received")
 		PING=$(echo $JSON | jq ".ping")
 		JITTER=$(echo $JSON | jq ".jitter")
-		UPLOAD=$(echo $JSON | jq ".upload")
 		DOWNLOAD=$(echo $JSON | jq ".download")
+		UPLOAD=$(echo $JSON | jq ".upload")
 
 	        echo "# SERVER $SERVER"
 
@@ -73,8 +96,16 @@ else
 		echo librespeed_bytes_received{server=$SERVER} $BYTES_RECEIVED
 		echo librespeed_ping{server=$SERVER} $PING
 		echo librespeed_jitter{server=$SERVER} $JITTER
-		echo librespeed_upload{server=$SERVER} $UPLOAD
-		echo librespeed_download{server=$SERVER} $DOWNLOAD
+
+		if [ "$PERFORM_DOWNLOAD" != "FALSE" ]
+		then
+			echo librespeed_download{server=$SERVER} $DOWNLOAD
+		fi
+
+		if [ "$PERFORM_UPLOAD" != "FALSE" ]
+		then
+			echo librespeed_upload{server=$SERVER} $UPLOAD
+		fi
 	done
 fi
 
