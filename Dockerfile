@@ -1,5 +1,5 @@
 ARG TARGET_ARCH=
-FROM ${TARGET_ARCH}alpine:3.12.9
+FROM ${TARGET_ARCH}alpine:3.15.0
 
 # The version of the librespeed/speedtest-cli to use in this build
 ENV CLI_VERSION=1.0.9
