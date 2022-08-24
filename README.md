@@ -155,7 +155,7 @@ Command-line launch will now be as follows:
 ```bash
 docker run \
     --rm -it \
-    --env SERVER_IDS=80,92
+    --env SERVER_IDS=80|92
     -p 9469:9469 \
     -v $(pwd)/librespeed-backends.json:/librespeed-backends.json \
     brendonmatheson/prometheus-librespeed-exporter:1.0.0
@@ -168,7 +168,7 @@ The equivalent Docker Compose service definition is:
 ```yaml
 librespeed_exporter:
     environment:
-      - "SERVER_IDS=80,92"
+      - "SERVER_IDS=80|92"
     image: "brendonmatheson/prometheus-librespeed-exporter:1.0.0"
     ports:
       - "9469:9469"
@@ -204,7 +204,7 @@ For example the following Docker Compose service entry will run the exporter but
 ```yaml
 librespeed_exporter:
     environment:
-      - "SERVER_IDS=80,92"
+      - "SERVER_IDS=80|92"
       - "PERFORM_UPLOAD=FALSE"
     image: "brendonmatheson/prometheus-librespeed-exporter:1.0.0"
     ports:
@@ -274,4 +274,3 @@ sudo docker buildx build \
     --output=type=image,push=true \
     -t brendonmatheson/prometheus-librespeed-exporter:1.0.0 .
 ```
-
